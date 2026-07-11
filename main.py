@@ -1,7 +1,9 @@
 from __future__ import annotations
 import sys
 
-from custom_exceptions.InputExceptions import InvalidUserInput
+from exceptions.InputExceptions import InvalidUserInput, FalseValidUserInput
+from exceptions.DatabaseExceptions import DbNotConnected
+from src.import_csv_data import ImportCsvData
 
 """
 Command-line entry point
@@ -11,14 +13,16 @@ terminal and reacts to simple commands.
 """
 
 COMMANDS = {
-    "help": "Show available commands.",    
+    "help": "Show available commands.",
+    "import": "Import CSV files under the /input directory. (Expected: train.csv, test.csv, ideal.csv)",
     "exit": "Exit the application.",
     "quit": "Exit the application.",
     "q": "Exit the application."
 }
 
 def show_help() -> None:
-    """Return a formatted help text for all available commands.
+    """
+    Return a formatted help text for all available commands.
 
     Returns
     -------
@@ -33,7 +37,8 @@ def show_help() -> None:
     print("\n".join(lines))
 
 def validate_user_input(user_input: str) -> str:
-    """Process one user input and returns it, if valid.
+    """
+    Process one user input and returns it, if valid.
 
     Parameters
     ----------
@@ -59,9 +64,19 @@ def handle_user_input(user_input: str) -> None:
         show_help()
     elif (user_input == "exit" or user_input == "quit" or user_input == "q"):
         sys.exit(0)
+    elif (user_input=="import"):
+        if not db:
+            raise DbNotConnected()
+        db.load_all_inputs()
+        # just for debugging, delete later
+        print(db.read_table_by_name("train_data"))
+        print(db.read_table_by_name("test_data"))
+        print(db.read_table_by_name("ideal_functions"))
+    else:
+        raise FalseValidUserInput(user_input)
 
-    
-"""Run the interactive command-line loop.
+"""
+Run the interactive command-line loop.
 
 The loop accepts user input until one of the configured exit commands is
 entered. Application-specific commands can later be routed from this
@@ -70,6 +85,8 @@ function into separate modules.
 def main() -> None:
     print("Interactive mode started.")
     print("Exit with: exit, quit or q")
+    global db
+    db = ImportCsvData()
 
     while True:
         user_input = input("> ")
@@ -79,7 +96,6 @@ def main() -> None:
         except InvalidUserInput as error:
             print(f"Invalid user input: {error}")
             continue
-
 
 if __name__ == "__main__":
     main()
