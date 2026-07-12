@@ -2,34 +2,26 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 from bokeh.io import output_file, save, show
 from bokeh.plotting import figure
-from bokeh.layouts import gridplot
+from bokeh.layouts import gridplot, row, column
+from bokeh.models import Div
+
+from src.constants import PATHS, VALID_PLOT_OUTPUT_OPTIONS
+from exceptions.VisualizerExceptions import InvalidPlotOutputOptions
 
 
 
 class DataVisualizer:
     """
     Create Bokeh plots from pandas DataFrames.
-
-    Parameters
-    ----------
-    output_directory:
-        Directory where generated plot files should be stored.
     """
 
-    PROJECT_ROOT = Path(__file__).resolve().parent.parent
-    OUTPUT_PATH = PROJECT_ROOT / "visualizations"
-
-    def __init__(self, output_directory: str | Path=OUTPUT_PATH) -> None:
+    def __init__(self) -> None:
         """
         Initialize the visualizer.
         """
-        self.output_directory = Path(output_directory)
-        self.output_directory.mkdir(parents=True, exist_ok=True)
 
     def save_all_xy_plots(
         self,
@@ -49,27 +41,28 @@ class DataVisualizer:
         x_column:
             Name of the x-axis column.
         """
-        y_columns = [
-            column
-            for column in dataframe.columns
-            if column != x_column
-        ]
-
+        y_columns = []
+        for col in dataframe.columns:
+            if col != x_column:
+                y_columns.append(col)
+        
         for y_column in y_columns:
-            self.save_xy_plot(
+            self.xy_plot(
                 dataframe=dataframe,
                 table_name=table_name,
                 x_column=x_column,
                 y_column=y_column,
+                output="save"
             )
 
-    def save_xy_plot(
+    def xy_plot(
         self,
         dataframe: pd.DataFrame,
         table_name: str,
         x_column: str,
         y_column: str,
-    ) -> Path:
+        output: str,
+    ) -> None:
         """
         Save a single x/y plot as an HTML file.
 
@@ -83,11 +76,8 @@ class DataVisualizer:
             Name of the x-axis column.
         y_column:
             Name of the y-axis column.
-
-        Returns
-        -------
-        pathlib.Path
-            Path to the generated HTML file.
+        output:
+            Possible options: "show", "save" or "both"
         """
         plot = self._create_xy_plot(
             dataframe=dataframe,
@@ -96,30 +86,16 @@ class DataVisualizer:
             y_column=y_column,
         )
 
-        file_path = self.output_directory / f"{table_name}_{y_column}.html"
+        file_path = PATHS["visualization"] / f"{table_name}_{y_column}.html"
         output_file(file_path)
-        save(plot)
+        if output == "save" or output == "both":
+            save(plot)
+        if output == "show" or output == "both":
+            show(plot)
+        if output not in VALID_PLOT_OUTPUT_OPTIONS:
+            raise InvalidPlotOutputOptions
 
-        return file_path
-
-    def show_xy_plot(
-        self,
-        dataframe: pd.DataFrame,
-        table_name: str,
-        x_column: str,
-        y_column: str,
-    ) -> None:
-        """
-        Show a single x/y plot directly in the browser.
-        """
-        plot = self._create_xy_plot(
-            dataframe=dataframe,
-            title=f"{table_name}: {x_column} / {y_column}",
-            x_column=x_column,
-            y_column=y_column,
-        )
-
-        show(plot)
+        return None
 
     def _create_xy_plot(
         self,
@@ -127,6 +103,8 @@ class DataVisualizer:
         title: str,
         x_column: str,
         y_column: str,
+        width: int = 900,
+        height: int = 500
     ):
         """
         Create a Bokeh figure for one x/y column pair.
@@ -135,8 +113,8 @@ class DataVisualizer:
             title=title,
             x_axis_label=x_column,
             y_axis_label=y_column,
-            width=900,
-            height=500,
+            width=width,
+            height=height,
         )
 
         plot.line(
@@ -146,63 +124,102 @@ class DataVisualizer:
             legend_label=y_column,
         )
 
-        plot.circle(
+        plot.scatter(
             dataframe[x_column],
             dataframe[y_column],
             size=4,
             alpha=0.5,
-        )
+            marker="circle"
+        )        
 
         plot.legend.location = "top_left"
 
         return plot
     
-    def save_table_grid_plot(
+    def table_grid_plot(
     self,
     dataframe: pd.DataFrame,
     table_name: str,
     x_column: str = "x",
     plots_per_row: int = 4,
-    ) -> Path:
+    ) -> None:
         """
-        Save all y-columns of one table as separate plots in one HTML file.
+        Save/Show all y-columns of one table as separate plots in one HTML file.
         """
-        y_columns = [
-            column
-            for column in dataframe.columns
-            if column not in {"id", x_column}
-        ]
-
+        y_columns = []
+        for col in dataframe.columns:
+            if col != x_column:
+                y_columns.append(col)
+        
         plots = []
 
         for y_column in y_columns:
-            plot = figure(
-                title=f"{table_name}: {x_column} / {y_column}",
-                x_axis_label=x_column,
-                y_axis_label=y_column,
+            plot = self._create_xy_plot(
+                dataframe=dataframe,
+                title=table_name,
+                x_column=x_column,
+                y_column=y_column,
                 width=450,
-                height=300,
+                height=300
             )
-
-            plot.line(
-                dataframe[x_column],
-                dataframe[y_column],
-                line_width=2,
-            )
-
-            plot.scatter(
-                dataframe[x_column],
-                dataframe[y_column],
-                size=3,
-                alpha=0.4,
-            )
-
             plots.append(plot)
 
         grid = gridplot(plots, ncols=plots_per_row)
 
-        file_path = self.output_directory / f"{table_name}_grid.html"
+        file_path = PATHS["visualization"] / f"{table_name}_grid.html"
         output_file(file_path)
         save(grid)
+        show(grid)
 
-        return file_path
+        return None
+    
+    def selection_grid_plot(
+        self,
+        selection: pd.DataFrame,
+        train_data: pd.DataFrame,
+        ideal_data:pd.DataFrame        
+        ) -> None:
+            """
+            Save/Show all train-ideal function pairs in one grid plot
+            """
+                
+            rows=[]
+
+            for _, data_row in selection.iterrows():                
+                y_train = data_row["training_function"]
+                y_ideal = data_row["ideal_function"]
+                layout_row = []
+                train_plot = self._create_xy_plot(train_data,
+                                            f"train_{data_row["training_function"]}",
+                                            x_column="x",
+                                            y_column=y_train,
+                                            width=450,
+                                            height=300
+                                            )
+                layout_row.append(train_plot)
+                ideal_plot = self._create_xy_plot(ideal_data,
+                                            f"train_{data_row["ideal_function"]}",
+                                            x_column="x",
+                                            y_column=y_ideal,
+                                            width=450,
+                                            height=300
+                                            )
+                layout_row.append(ideal_plot)
+
+                description = Div(
+                    text=f"""<h3>Squared Error and max. deviation</h3>
+                        <p>{data_row["squared_error"], data_row["max_deviation"]}</p>""",
+                    width=300
+                    )
+                layout_row.append(description)
+                rows.append(row(layout_row))
+
+            
+
+            layout = column(*rows)
+            file_path = PATHS["visualization"] / "selection_grid.html"
+            output_file(file_path)
+            save(layout)
+            show(layout)
+
+            return None

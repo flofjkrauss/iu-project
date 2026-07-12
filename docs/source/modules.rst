@@ -5,3 +5,4 @@ iu-project
    :maxdepth: 4
 
    main
+   src
