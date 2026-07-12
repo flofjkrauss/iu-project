@@ -9,10 +9,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from src.import_csv_data import ImportCsvData
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-INPUT_FILES_PATH = PROJECT_ROOT / "input"
+from src.constants import PATHS, TABLE_NAMES
 
 
 @pytest.fixture
@@ -20,9 +17,7 @@ def import_csv_data(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> ImportCs
     """
     Create an ImportCsvData instance with an isolated test database.
     """
-    database_path = tmp_path / "test_project.sqlite3"
-
-    monkeypatch.setattr(ImportCsvData, "INPUTFILES_PATH", INPUT_FILES_PATH)
+    database_path = tmp_path / "test_project.sqlite3"    
 
     repository = ImportCsvData(database_path=database_path)
     yield repository
@@ -58,8 +53,8 @@ def test_load_all_inputs_stores_train_csv(
 
     assert_database_table_matches_csv(
         import_csv_data=import_csv_data,
-        csv_path=INPUT_FILES_PATH / "train.csv",
-        table_name=ImportCsvData.TRAIN_TABLE_NAME,
+        csv_path=PATHS["input"] / "train.csv",
+        table_name=TABLE_NAMES["train"],
     )
 
 
@@ -73,8 +68,8 @@ def test_load_all_inputs_stores_ideal_csv(
 
     assert_database_table_matches_csv(
         import_csv_data=import_csv_data,
-        csv_path=INPUT_FILES_PATH / "ideal.csv",
-        table_name=ImportCsvData.IDEAL_TABLE_NAME,
+        csv_path=PATHS["input"] / "ideal.csv",
+        table_name=TABLE_NAMES["ideal"]
     )
 
 
@@ -88,6 +83,6 @@ def test_load_all_inputs_stores_test_csv(
 
     assert_database_table_matches_csv(
         import_csv_data=import_csv_data,
-        csv_path=INPUT_FILES_PATH / "test.csv",
-        table_name=ImportCsvData.TEST_TABLE_NAME,
+        csv_path=PATHS["input"] / "test.csv",
+        table_name=TABLE_NAMES["test"]
     )

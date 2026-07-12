@@ -38,7 +38,8 @@ PATHS = {
     "root": PROJECT_ROOT,
     "db": PROJECT_ROOT / "database" / "project.sqlite3",
     "input": PROJECT_ROOT / "input",
-    "visualization": PROJECT_ROOT / "visualizations"
+    "visualization": PROJECT_ROOT / "visualizations",
+    "database": PROJECT_ROOT / "database" / "project.sqlite3"
 }
 
 VALID_PLOT_OUTPUT_OPTIONS = ("save", "show", "both")

@@ -91,7 +91,7 @@ class FunctionMatcher:
         """
         best_ideal_function = ""
         best_squared_error = float("inf")
-        best_max_deviation = float("inf")
+        max_deviation = float("inf")
 
         for ideal_column in ideal_columns:
             delta = train_data[training_column] - ideal_data[ideal_column]
@@ -100,13 +100,13 @@ class FunctionMatcher:
             if squared_error < best_squared_error:
                 best_ideal_function = ideal_column
                 best_squared_error = squared_error
-                best_max_deviation = float(delta.abs().max())
+                max_deviation = float(delta.abs().max())
 
         return {
             "training_function": training_column,
             "ideal_function": best_ideal_function,
             "squared_error": best_squared_error,
-            "max_deviation": best_max_deviation,
+            "max_deviation": max_deviation,
         }
 
     def _match_single_test_point(
@@ -164,5 +164,5 @@ class FunctionMatcher:
         return [
             column
             for column in dataframe.columns
-            if column not in {"id", "x"}
+            if column not in {"x"}
         ]

@@ -71,7 +71,7 @@ class SqlCrud:
 
     def get_table(self, table_name: str) -> Table:
         """
-        Reflect an existing database table by name.
+        Get an existing database table by name.
 
         Parameters
         ----------
@@ -81,7 +81,7 @@ class SqlCrud:
         Returns
         -------
         sqlalchemy.Table
-            Reflected SQLAlchemy table object.
+            Reflected SQLAlchemy table object.  
         """
         metadata = MetaData()
         return Table(table_name, metadata, autoload_with=self.engine)
@@ -100,7 +100,7 @@ class SqlCrud:
         table:
             Target database table.
         values:
-            Column values to update.
+            Column values to update.   
         condition:
             SQLAlchemy condition selecting affected rows.
         """
@@ -116,7 +116,7 @@ class SqlCrud:
         Parameters
         ----------
         table:
-            Target database table.
+            Target database table.    
         condition:
             SQLAlchemy condition selecting affected rows.
         """

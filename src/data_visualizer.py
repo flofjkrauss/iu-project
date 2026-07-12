@@ -11,8 +11,6 @@ from bokeh.models import Div
 from src.constants import PATHS, VALID_PLOT_OUTPUT_OPTIONS
 from exceptions.VisualizerExceptions import InvalidPlotOutputOptions
 
-
-
 class DataVisualizer:
     """
     Create Bokeh plots from pandas DataFrames.
@@ -198,7 +196,7 @@ class DataVisualizer:
                                             )
                 layout_row.append(train_plot)
                 ideal_plot = self._create_xy_plot(ideal_data,
-                                            f"train_{data_row["ideal_function"]}",
+                                            f"ideal_{data_row["ideal_function"]}",
                                             x_column="x",
                                             y_column=y_ideal,
                                             width=450,

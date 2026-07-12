@@ -1,11 +1,9 @@
 from __future__ import annotations
-
 from pathlib import Path
-
 import pandas as pd
 from sqlalchemy import Column, Float, MetaData, Table, String
-
 from src.sql_crud import SqlCrud
+from src.constants import PATHS, TABLE_NAMES
 
 
 class ImportCsvData(SqlCrud):
@@ -23,15 +21,7 @@ class ImportCsvData(SqlCrud):
         Path to the SQLite database file.
     """
 
-    TRAIN_TABLE_NAME = "train_data"
-    IDEAL_TABLE_NAME = "ideal_functions"
-    TEST_TABLE_NAME = "test_data"
-    TABLE_NAMES = (TRAIN_TABLE_NAME, IDEAL_TABLE_NAME, TEST_TABLE_NAME)
-    PROJECT_ROOT = Path(__file__).resolve().parent.parent
-    DATABASE_PATH = PROJECT_ROOT / "database" / "project.sqlite3"
-    INPUTFILES_PATH = PROJECT_ROOT / "input"
-
-    def __init__(self, database_path: str | Path=DATABASE_PATH) -> None:
+    def __init__(self, database_path: str | Path=PATHS["database"]) -> None:
         """
         Initialize the database.
         """
@@ -40,16 +30,11 @@ class ImportCsvData(SqlCrud):
     def load_all_inputs(self) -> None:
         """
         Load all expected CSV input files into the database.
-
-        Parameters
-        ----------
-        input_directory:
-            Directory expected to contain 'train.csv', 'ideal.csv', and 'test.csv'.
         """
 
-        self._load_data(self.TRAIN_TABLE_NAME, self.INPUTFILES_PATH / "train.csv")
-        self._load_data(self.IDEAL_TABLE_NAME, self.INPUTFILES_PATH / "ideal.csv")
-        self._load_data(self.TEST_TABLE_NAME, self.INPUTFILES_PATH / "test.csv")
+        self._load_data(TABLE_NAMES["train"], PATHS["input"] / "train.csv")
+        self._load_data(TABLE_NAMES["ideal"], PATHS["input"] / "ideal.csv")
+        self._load_data(TABLE_NAMES["test"], PATHS["input"] / "test.csv")
 
     def _load_data(self, table_name: str, csv_path: str | Path) -> None:
         """
@@ -58,7 +43,7 @@ class ImportCsvData(SqlCrud):
         Parameters
         ----------
         csv_path:
-            Path to 'test.csv'.
+            Path to CSV file
         """
         dataframe = pd.read_csv(csv_path)
         dataframe = dataframe.sort_values(by="x").reset_index(drop=True)
@@ -73,7 +58,6 @@ class ImportCsvData(SqlCrud):
         Create a SQLAlchemy table definition from numeric dataframe
         """
         metadata = MetaData()
-
         columns = []
 
         for column_name in dataframe.columns:
@@ -86,7 +70,6 @@ class ImportCsvData(SqlCrud):
         Create a SQLAlchemy table definition from dataframe
         """
         metadata = MetaData()
-
         columns = []
 
         for column_name in dataframe.columns:
@@ -103,6 +86,8 @@ class ImportCsvData(SqlCrud):
 
             Parameters
             ----------
+            table_name:
+                table name
             dataframe:
                 selected best ideal functions.
             """
