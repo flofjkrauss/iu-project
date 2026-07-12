@@ -38,6 +38,7 @@ def assert_database_table_matches_csv(
     Assert that a database table contains the same data as a CSV file.
     """
     expected_dataframe = pd.read_csv(csv_path)
+    expected_dataframe = expected_dataframe.sort_values(by="x").reset_index(drop=True)
     actual_dataframe = import_csv_data.read_table_by_name(table_name)
 
     assert_frame_equal(

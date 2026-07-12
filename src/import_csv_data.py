@@ -26,6 +26,7 @@ class ImportCsvData(SqlCrud):
     TRAIN_TABLE_NAME = "train_data"
     IDEAL_TABLE_NAME = "ideal_functions"
     TEST_TABLE_NAME = "test_data"
+    TABLE_NAMES = (TRAIN_TABLE_NAME, IDEAL_TABLE_NAME, TEST_TABLE_NAME)
     PROJECT_ROOT = Path(__file__).resolve().parent.parent
     DATABASE_PATH = PROJECT_ROOT / "database" / "project.sqlite3"
     INPUTFILES_PATH = PROJECT_ROOT / "input"
@@ -60,6 +61,7 @@ class ImportCsvData(SqlCrud):
             Path to 'test.csv'.
         """
         dataframe = pd.read_csv(csv_path)
+        dataframe = dataframe.sort_values(by="x").reset_index(drop=True)
         table = self._create_numeric_table(table_name, dataframe)
 
         self.drop_table(table)
