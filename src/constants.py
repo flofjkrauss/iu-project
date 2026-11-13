@@ -12,7 +12,7 @@ COMMANDS = {
     "quit": "Exit the application.",
     "q": "Exit the application.",
     "plot all": "Create HTML plots for all x-y combos stored in the database",
-    "plot [table] [y_column]": "Generate a single plot from [table] using x and [y_column] values (i.e. plot ideal_functions 35)",
+    "plot [table] [y_column]": "Generate a single plot from [table] using x and [y_column] values (i.e. plot ideal y35)",
     "plot [table] grid": "Generate a full grid of all plots of [table]",
     "match": "Match ideal to train functions and evaluate best for test points."
 }

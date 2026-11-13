@@ -119,7 +119,7 @@ def handle_plot_request(user_input: str,
     ----------
     user_input:
         Raw user input, for example 'plot all' or
-        'plot ideal_functions y35'.
+        'plot ideal y35'.
     db:
         database handle
     visualizer:
