@@ -21,10 +21,13 @@ class ImportCsvData(SqlCrud):
         Path to the SQLite database file.
     """
 
-    def __init__(self, database_path: str | Path=PATHS["database"]) -> None:
+    def __init__(self, database_path: str | Path=PATHS["db"]) -> None:
         """
         Initialize the database.
         """
+        if not Path(PATHS["db_folder"]).is_dir():
+            db_folder = Path(PATHS["db_folder"])
+            db_folder.mkdir()
         super().__init__(database_path)
 
     def load_all_inputs(self) -> None:

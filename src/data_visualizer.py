@@ -7,6 +7,7 @@ from bokeh.io import output_file, save, show
 from bokeh.plotting import figure
 from bokeh.layouts import gridplot, row, column
 from bokeh.models import Div
+from pathlib import Path
 
 from src.constants import PATHS, VALID_PLOT_OUTPUT_OPTIONS
 from exceptions.VisualizerExceptions import InvalidPlotOutputOptions
@@ -20,6 +21,9 @@ class DataVisualizer:
         """
         Initialize the visualizer.
         """
+        if not Path(PATHS["visualization"]).is_dir():
+            vis_folder = Path(PATHS["visualization"])
+            vis_folder.mkdir()
 
     def save_all_xy_plots(
         self,

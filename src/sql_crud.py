@@ -8,6 +8,9 @@ from sqlalchemy import MetaData, Table, create_engine, delete, insert, select, u
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql.elements import ColumnElement
 
+from src.constants import PATHS
+
+
 
 class SqlCrud:
     """
@@ -26,6 +29,7 @@ class SqlCrud:
         """
         Initialize the database engine and metadata container.
         """
+        
         self.database_path = Path(database_path)
         self.engine: Engine = create_engine(f"sqlite:///{self.database_path}")
         self.metadata = MetaData()

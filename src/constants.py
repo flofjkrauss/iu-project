@@ -37,9 +37,9 @@ additional paths with respect to project folder
 PATHS = {
     "root": PROJECT_ROOT,
     "db": PROJECT_ROOT / "database" / "project.sqlite3",
+    "db_folder": PROJECT_ROOT / "database",
     "input": PROJECT_ROOT / "input",
-    "visualization": PROJECT_ROOT / "visualizations",
-    "database": PROJECT_ROOT / "database" / "project.sqlite3"
+    "visualization": PROJECT_ROOT / "visualizations"
 }
 
 VALID_PLOT_OUTPUT_OPTIONS = ("save", "show", "both")
